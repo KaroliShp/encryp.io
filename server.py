@@ -1,29 +1,30 @@
-#Imports Modules
 import socket
-import time
 
-#Defines Server Values
-listensocket = socket.socket()
-Port = 5000
-maxConnections = 999
-IP = socket.gethostname() #Gets Hostname Of Current Macheine
+def main():
+    host = '127.0.0.1'
+    port = 5001
 
-listensocket.bind(('',Port))
+    s = socket.socket()
+    s.bind((host, port))
 
-#Opens Server
-listensocket.listen(maxConnections)
-print("Server started at " + IP + " on port " + str(Port))
+    s.listen(1)
 
-#Accepts Incomming Connection
-(clientsocket, address) = listensocket.accept()
-print("New connection made!")
+    c, addr = s.accept()
 
-running = True
+    print(f'Connection from {str(addr)}')
 
-#Main
-while running:
-    message = clientsocket.recv(1024).decode()
-    print(message)
-    if message == "":
-        clientsocket.close()
-        running = False
+    while True:
+        data = c.recv(1024)
+
+        if not data:
+            break
+
+        print(f'From connected user {str(data)}')
+        data = str(data).upper()
+        print(f'Sending back: {str(data)}')
+        c.send(data.encode())
+
+    c.close()
+
+if __name__ == '__main__':
+    main()
