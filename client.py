@@ -2,14 +2,14 @@ from socket import AF_INET, socket, SOCK_STREAM
 import threading
 
 HOST = '192.168.1.188'
-PORT = 5000
+PORT = 5001
 
 BUFSIZ = 1024
 
 
 def send_message(client_socket):
     while True:
-        message = input('You: ')
+        message = input('You: \n')
         client_socket.send(message.encode())
 
 def main():
@@ -31,7 +31,7 @@ def main():
         if not data:
             break
 
-        print(f'{data}\n')
+        print(f'Received: {data}\nYou:')
 
 if __name__ == '__main__':
     main()

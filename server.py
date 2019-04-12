@@ -3,7 +3,7 @@ import threading
 import sys
 
 ADDR = '0.0.0.0'
-PORT = 5000
+PORT = 5001
 
 BUFF_SIZE = 1024
 
