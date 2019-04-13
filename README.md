@@ -61,14 +61,14 @@ Every time a connection is established with the server, user sends the following
 
 ```json
 {
-	"Name" : "Person's name"
-	"IKB" : "Identity key",
+    "UID" : "User ID",
+    "IKB" : "Identity key",
     "SPKB" : "Signed prekey",
     "Signature" : "Signature(IKB, Encode(SPKB))",
     "Prekeys" : [
     	{ "OPKB1" : "One-time prekey" },
         { "OPKB2" : "One-time prekey" },
-        ...
+        { "..." : "..." },
         { "OPKB5" : "One-time prekey" }
     ]
 }
@@ -103,7 +103,7 @@ Bob then has to send a JSON message to the server
 
 ```json
 {
-	"User" : "Alice"
+	"UID" : "Alice"
 }
 ```
 
@@ -137,3 +137,6 @@ Todo
 
 Todo
 
+## Sockets and JSON
+
+Message: fixed length header ()
