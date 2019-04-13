@@ -3,27 +3,39 @@ import socket
 import time
 
 #Defines Server Values
-listensocket = socket.socket()
+listensocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 Port = 5000
 maxConnections = 999
 IP = socket.gethostname() #Gets Hostname Of Current Macheine
 
-listensocket.bind(('',Port))
 
-#Opens Server
-listensocket.listen(maxConnections)
-print("Server started at " + IP + " on port " + str(Port))
+def main():
+    host = ''
+    Port = 5000
 
-#Accepts Incomming Connection
-(clientsocket, address) = listensocket.accept()
-print("New connection made!")
+    listensocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        listensocket.bind(('',Port))
+    except Exception as e:
+        print("Binding error:" + str(e))
 
-running = True
+    #Opens Server
+    listensocket.listen(maxConnections)
+    print("Server started at " + IP + " on port " + str(Port))
 
-#Main
-while running:
-    message = clientsocket.recv(1024).decode()
-    print(message)
-    if message == "":
-        clientsocket.close()
-        running = False
+    #Accepts Incomming Connection
+    (clientsocket, address) = listensocket.accept()
+    print("New connection made!" + str(address) + "joins the call")
+
+
+    while True:
+        message = clientsocket.recv(1024).decode()
+        if not message:
+            clientsocket.close()
+            break
+        print("received: " + str(message))
+        email = '...'.encode()
+        clientsocket.send(email)
+
+if __name__ == "__main__":
+    main()
