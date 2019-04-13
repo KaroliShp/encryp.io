@@ -3,11 +3,14 @@ import threading
 import sys
 
 ADDR = '0.0.0.0'
-PORT = 5001
+PORT = 5000
 
 BUFF_SIZE = 1024
 
 connections = []
+
+# public key : client
+clients_DB = { 'Rytis' : '0123456', 'Karolis' : '0011223' }
 
 def broadcast(message, c):
     print(f'(Broadcasting) {message}')

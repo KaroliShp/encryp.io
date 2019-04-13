@@ -1,8 +1,8 @@
 from socket import AF_INET, socket, SOCK_STREAM
 import threading
 
-HOST = '192.168.1.188'
-PORT = 5001
+HOST = '192.168.1.189'
+PORT = 5000
 
 BUFSIZ = 1024
 
