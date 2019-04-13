@@ -4,23 +4,21 @@ from cryptography import generate_signature, verify_signature, calculate_shared_
 from socket import AF_INET, socket, SOCK_STREAM
 import threading
 import json
+import time
+import sys
 
-HOST = '192.168.43.102'
+HOST = '192.168.1.188'
 PORT = 5000
 
 BUFSIZ = 1024
 
+UID = ''
+IK = ''
+
 def verify():
     return { 
-        'UID' : 'Klevas', 
-        'IK' : '0000',
-        'SPK' : '1110',
-        'SIG' : '2220',
-        'OPK1' : '3330',
-        'OPK2' : '3331',
-        'OPK3' : '3332',
-        'OPK4' : '3333',
-        'OPK5' : '3334'
+        'UID' : UID, 
+        'IK' : IK
     }
 
 def create_peer_uid(uid):
@@ -28,12 +26,13 @@ def create_peer_uid(uid):
         'UID' : uid
     }
 
-def send_message(client_socket):
+def send_message(c):
     while True:
-        message = input('You: \n')
-        client_socket.send(message.encode())
+        uid_msg = create_peer_uid(input('You: '))
+        send_json_message(c, uid_msg)
 
 def main():
+    # Setup client
     print(f'Starting the client...')
 
     client_socket = socket(AF_INET, SOCK_STREAM)
@@ -42,9 +41,9 @@ def main():
     client_socket.connect((HOST, PORT))
     print(f'Connected to: {HOST}:{str(PORT)}')
 
-    # Publish keys
-    keys_msg = verify()
-    send_json_message(client_socket, keys_msg)
+    # Verify with the server
+    time.sleep(1)
+    send_json_message(client_socket, verify())
 
     # Receive response
     response_msg = receive_json_message(client_socket)
@@ -53,38 +52,26 @@ def main():
         print('Quitting...')
         sys.exit(0)
 
-    # Ask for prekey bundle
-    uid_msg = create_peer_uid(input('You: '))
-    send_json_message(client_socket, uid_msg)
-    bundle_msg = receive_json_message(client)
-    if bundle_msg['Response'] == 'Failure':
-        print('Failed to retrieve key bundle')
-        sys.exit(0)
-    key_bundle = bundle_msg['PKBundle']
-
-    # Verify bundle
-    res = verify_signature(key_bundle['IK'], key_bundle['SPK'], key_bundle['SIG'])
-    if not res:
-        print('Signature is wrong')
-        sys.exit(0)
-    
-    # 
-
-
-
-    """
+    # Create thread for sending messages
     send_thread = threading.Thread(target=send_message, args=(client_socket,))
     send_thread.daemon = True
     send_thread.start()
 
     while True:
-        data = client_socket.recv(BUFSIZ).decode()
-
-        if not data:
-            break
-
-        print(f'Received: {data}\nYou:')
-    """
+        peer_msg = receive_json_message(client_socket)
+        
+        # Incoming P2P connection
+        if peer_msg["Response"] == 'P2P':
+            if 'Message' in peer_msg:
+                print(f'\nServer interrupted: {peer_msg["Message"]}')
+            else:
+                print(f'\nServer interrupted: Initiate P2P with UID: {peer_msg["PeerUID"]}, IP: {peer_msg["PeerIP"]}, IK: {peer_msg["PeerIK"]}')
 
 if __name__ == '__main__':
+    if len(sys.argv) != 3:
+        print('Correct usage: python3 client.py --uid --ik')
+        sys.exit(0)
+    UID = sys.argv[1]
+    IK = sys.argv[2]
+
     main()

@@ -10,6 +10,9 @@ def send_json_message(socket, data):
     socket.send(message.encode())
 
 def receive_json_message(socket):
-    header = int(socket.recv(HEADER_BUFF_SIZE).decode(), 2)
+    raw_msg = socket.recv(HEADER_BUFF_SIZE).decode()
+    if not raw_msg:
+        return None
+    header = int(raw_msg, 2)
     message = json.loads(socket.recv(header).decode())
     return message
