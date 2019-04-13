@@ -16,3 +16,8 @@ def receive_json_message(socket):
     header = int(raw_msg, 2)
     message = json.loads(socket.recv(header).decode())
     return message
+
+def check_connection_client(msg):
+    if msg is None:
+        print(f'Server has disconnected. Quitting...')
+        sys.exit(0)

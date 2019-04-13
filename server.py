@@ -5,6 +5,7 @@ import socket
 import threading
 import sys
 import json
+import time
 
 ADDR = '0.0.0.0'
 PORT = 5000
@@ -17,6 +18,9 @@ connections = []
 database = [Client("Klevas", "0000"), Client("Berzas", "0001")]
 
 def print_connections():
+    """
+    Print all connections to the server
+    """
     print('\nConnections:')
     for c in connections:
         print(f'{c[1]}:{c[2]}')
@@ -24,7 +28,7 @@ def print_connections():
 
 def verify_user(data):
     """
-    Check if user exists in the database and if the provided public key is correct
+    Check if user exists in the database and if the provided public key is correct according to the database
     """
     res = db_find(database, data['UID'])
     return (not res is None) and (res.IK == data['IK'])
@@ -33,11 +37,11 @@ def establish_p2p(c1, ca1, uid1, uid2):
     """
     Establish p2p between the 2 clients
     """
+    # Check if UID is not identical
     if uid1 == uid2:
+        print(f'Cannot establish P2P with yourself')
         send_json_message(c1, { 'Response' : 'P2P', 'Message' : f'Cannot establish P2P with yourself'})
         return False
-
-    print(f'Trying to establish p2p between {uid1}:{ca1} and {uid2}')
 
     # Check if UID exists
     res = db_find(database, uid2)
@@ -45,19 +49,20 @@ def establish_p2p(c1, ca1, uid1, uid2):
         print(f'User with UID {uid2} doesnt exist')
         send_json_message(c1, { 'Response' : 'P2P', 'Message' : f'User {uid2} does not exist'})
         return False
-    print(f'User {uid2} exists in the database, checking for connection')
 
     # Check if UID is online
     for c in connections:
         # UID is online, notify both parties
         if c[2] == uid2:
             print(f'Establising P2P between {uid1}:{ca1} and {uid2}:{c[1]}')
-            send_json_message(c1, { 'Response' : 'P2P', 'PeerUID' : uid2, 'PeerIP' : c[1], 'PeerIK' : res.IK })
-            send_json_message(c[0], { 'Response' : 'P2P', 'PeerUID' : uid1, 'PeerIP' : ca1, 'PeerIK' : db_find(database, uid1).IK })
+            
+            send_json_message(c1, { 'Response' : 'P2P', 'PeerUID' : uid2, 'PeerIP' : c[1], 'PeerIK' : res.IK, 'Server' : True, 'ServerPort' : 5002})
+            send_json_message(c[0], { 'Response' : 'P2P', 'PeerUID' : uid1, 'PeerIP' : ca1, 'PeerPort' : 5002, 'PeerIK' : db_find(database, uid1).IK, 'Server' : False })
+
             return True
     
     print(f'User {uid2} is not currently online')
-    send_json_message(c1, { 'Response' : 'P2P', 'Message' : f'User {uid2} is not online'})
+    send_json_message(c1, { 'Response' : 'P2P', 'Message' : f'User {uid2} is not currently online'})
     return False
 
 def client_handler(c, ca, uid):
@@ -69,19 +74,23 @@ def client_handler(c, ca, uid):
         # Receive UID with whom to communicate
         uid_msg = receive_json_message(c)
         if uid_msg is None:
-            print(f'Disconnecting client {uid}:{ca}')
+            print(f'{uid}:{ca} has disconnected')
             connections.remove((c, ca, uid))
             break
         print(f'\nClient {uid}:{ca} wishes to communicate with {uid_msg["UID"]}')
 
         # Establish P2P connection
-        establish_p2p(c, ca, uid, uid_msg['UID'])
+        if establish_p2p(c, ca, uid, uid_msg['UID']):
+            break
 
 def client_gateway(c, ca):
     print(f'Client {ca} goes through gateway')
 
     # Identity confirmation
     verification_msg = receive_json_message(c)
+    if verification_msg is None:
+        print(f'{ca} has disconected')
+        return
     res = verify_user(verification_msg)
 
     # Give response to the client
@@ -93,7 +102,14 @@ def client_gateway(c, ca):
         return
 
     # Add to connections
-    connections.append((c, ca, verification_msg['UID']))
+    found = False
+    for i, conn in enumerate(connections):
+        if conn[2] == verification_msg['UID']:
+            connections[i] = (c, ca, verification_msg['UID'])
+            found = True
+            break
+    if not found:
+        connections.append((c, ca, verification_msg['UID']))
     print_connections()
 
     # Handle the client
@@ -102,7 +118,8 @@ def client_gateway(c, ca):
 def main():
     print(f'\nStarting the server...')
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)    
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print(f'Socket created successfully...')
 
     s.bind((ADDR, PORT))
