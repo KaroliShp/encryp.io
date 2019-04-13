@@ -1,4 +1,5 @@
 from helper import receive_json_message, send_json_message
+from cryptography import generate_signature, verify_signature, calculate_shared_key
 
 from socket import AF_INET, socket, SOCK_STREAM
 import threading
@@ -46,14 +47,30 @@ def main():
     send_json_message(client_socket, keys_msg)
 
     # Receive response
-    message = receive_json_message(client_socket)
-    print(f'Server ({message["Response"]}): {message["Message"]}')
-    if message['Response'] == 'Failure':
+    response_msg = receive_json_message(client_socket)
+    print(f'Server ({response_msg["Response"]}): {response_msg["Message"]}')
+    if response_msg['Response'] == 'Failure':
         print('Quitting...')
         sys.exit(0)
 
+    # Ask for prekey bundle
     uid_msg = create_peer_uid(input('You: '))
     send_json_message(client_socket, uid_msg)
+    bundle_msg = receive_json_message(client)
+    if bundle_msg['Response'] == 'Failure':
+        print('Failed to retrieve key bundle')
+        sys.exit(0)
+    key_bundle = bundle_msg['PKBundle']
+
+    # Verify bundle
+    res = verify_signature(key_bundle['IK'], key_bundle['SPK'], key_bundle['SIG'])
+    if not res:
+        print('Signature is wrong')
+        sys.exit(0)
+    
+    # 
+
+
 
     """
     send_thread = threading.Thread(target=send_message, args=(client_socket,))

@@ -6,7 +6,8 @@ Secure communication
 
 
 - [x] Milestone 1: Paprastas CL python client ir server app. Client ir server komunikuoja per sockets. No encryption.
-- [ ] Milestone 2: X3DH 1
+- [x] Milestone 2: X3DH key publishing prototype
+- [ ] Milestone 3: Sending initial message
 
 
 ## Signal protocol (end to end encryption)

@@ -58,6 +58,7 @@ def client_handler(c, ca):
     # Receive UID with whom to communicate
     uid_msg = receive_json_message(c)
     print(f'Client wishes to communicate with {uid_msg["UID"]}')
+    db_find()
 
     """
     while True:
