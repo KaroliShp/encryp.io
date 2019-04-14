@@ -17,6 +17,7 @@ class ClientTkApp(tk.Tk):
         self.host = input_host
         self.port = input_port
         self.database_of_all_users = [Client("Klevas", "0000"), Client("Berzas", "0001"), Client("Pusis", "0005")]
+        self.list_of_active_user = []
 
         self.title("ENCRYP.IO CLIENT")
         self.geometry("600x600")
@@ -137,7 +138,7 @@ class ClientTkApp(tk.Tk):
 
         # self.list_of_active_user = self.initial_setup() #Obtaining the list of active users on successful connection to the user
         # # FINISHED SETTING UP SOCKETS
-        self.list_of_active_user = [Client("Klevas", "0000"), Client("Berzas", "0001"), Client("Pusis", "0005")]
+        self.list_of_active_user.append(db_find(self.database_of_all_users,self.UID))
         #-------------------------------- CURRENT STATE -----------------
 
         self.title('ENCRYP.IO CHAT CLIENT') #Window title
@@ -209,10 +210,12 @@ class ClientTkApp(tk.Tk):
          #############################################################
 
         self.enable = dict()
-
+        
+        # NEED TO FIRE UP DATABASE TO PREVENT SELECTION OF YOUR OWN NAME
+        # for client in [i for i in self.list_of_active_user if i.UID !=self.UID]:
         for client in self.list_of_active_user:
             self.enable[client.UID] = tk.IntVar()
-            l = ttk.Checkbutton(self.clients_frame, text=client.UID, variable=self.enable[client])
+            l = ttk.Checkbutton(self.clients_frame, text=client.UID, variable=self.enable[client.UID])
             l.pack(anchor = tk.W)
             self.checks.append(l)
 
