@@ -13,17 +13,9 @@ def db_update(clients, client):
 
 def db_print(clients):
     for c in clients:
-        print(f'Client: {c.UID}. IK: {c.IK}, SPK: {c.SPK}, SIG: {c.SIG}, OPK1: {c.OPK1}, OPK2: {c.OPK2}, OPK3: {c.OPK3}, OPK4: {c.OPK4}, OPK5: {c.OPK5}')
+        print(f'Client: {c.UID}. IK: {c.IK}')
 
 class Client:
-    def __init__(self, UID, IK, SPK, SIG, OPK1, OPK2, OPK3, OPK4, OPK5):
+    def __init__(self, UID, IK):
         self.UID = UID
         self.IK = IK
-        self.SPK = SPK
-        self.SIG = SIG
-        self.OPK1 = OPK1
-        self.OPK2 = OPK2
-        self.OPK3 = OPK3
-        self.OPK4 = OPK4
-        self.OPK5 = OPK5
-
