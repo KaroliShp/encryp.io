@@ -5,7 +5,6 @@ import socket
 import threading
 import time
 import os
-import json
 
 class P2P_Server:
     def __init__(self, host, port, uid, peer_uid, peer_ip, peer_ik, private_key):
@@ -48,7 +47,6 @@ class P2P_Server:
 
         while True:
             msg = receive_json_message(self.p2p_c)
-            print(json.dumps(msg))
             if msg is None:
                 print(f'Lost connection to the peer {self.peer_uid}:({self.peer_ip}), closing...')
                 break
@@ -90,7 +88,6 @@ class P2P_Client:
 
         while True:
             msg = receive_json_message(self.p2p_c)
-            print(json.dumps(msg))
             if msg is None:
                 print(f'Lost connection to the peer {self.peer_uid}:({self.peer_ip},{self.peer_port}), closing...')
                 break

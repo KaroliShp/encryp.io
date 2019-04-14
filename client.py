@@ -9,8 +9,14 @@ import time
 import sys
 from threading import Thread
 import os
+import ssl
 
-HOST = '192.168.1.188'
+SERVER_SNI_HOSTNAME = 'example.com'
+SERVER_CERT = 'ssl/server.crt'
+CLIENT_CERT = 'ssl/client.crt'
+CLIENT_KEY = 'ssl/client.key'
+
+HOST = '192.168.43.102'
 PORT = 5000
 
 CLIENT_HOST = '0.0.0.0'
@@ -42,12 +48,16 @@ def main():
     # Setup client
     print(f'Starting the client...')
 
+    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
+    context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print(f'Client socket created successfully')
 
+    client_socket = context.wrap_socket(client_socket, server_side=False, server_hostname=SERVER_SNI_HOSTNAME)
     client_socket.connect((HOST, PORT))
-    print(f'Connected to: {HOST}:{str(PORT)}')
+    print(f'Connected to: {HOST}:{str(PORT)}. TLS established')
 
     # Verify with the server
     time.sleep(1)
@@ -118,7 +128,7 @@ if __name__ == '__main__':
     UID = sys.argv[1]
 
     # Load corresponding keys
-    key_file = f'{UID}_key.pem'
+    key_file = f'keys/{UID}_key.pem'
     if os.path.isfile(key_file):
         PK = load_key(key_file)
         IK = PK.public_key()

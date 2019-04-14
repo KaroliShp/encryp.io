@@ -7,6 +7,12 @@ import threading
 import sys
 import json
 import time
+import ssl
+
+# https://www.electricmonk.nl/log/2018/06/02/ssl-tls-client-certificate-verification-with-python-v3-4-sslcontext/
+SERVER_CERT = 'ssl/server.crt'
+SERVER_KEY = 'ssl/server.key'
+CLIENT_CERTS = 'ssl/client.crt'
 
 ADDR = '0.0.0.0'
 PORT = 5000
@@ -16,7 +22,7 @@ BUFF_SIZE = 1024
 connections = []
 
 # Fake database
-database = [Client("Klevas", key_to_bytes(load_key('klevas_key.pem').public_key())), Client("Berzas", key_to_bytes(load_key('berzas_key.pem').public_key()))]
+database = [Client("Klevas", key_to_bytes(load_key('keys/klevas_key.pem').public_key())), Client("Berzas", key_to_bytes(load_key('keys/berzas_key.pem').public_key()))]
 
 def print_connections():
     """
@@ -66,9 +72,7 @@ def establish_p2p(c1, ca1, uid1, uid2):
     send_json_message(c1, { 'Response' : 'P2P', 'Message' : f'User {uid2} is not currently online'})
     return False
 
-def client_handler(c, ca, uid):
-    print(f'Client {ca} has successfully authenticated with the server')
-    
+def client_handler(c, ca, uid):    
     while True:
         send_json_message(c, { 'Response' : 'Success', 'Message' : 'Send UID with whom youd like to communicate' } )
 
@@ -102,6 +106,8 @@ def client_gateway(c, ca):
         print_connections()
         return
 
+    print(f'Client {ca} has successfully authenticated with the server')
+    
     # Add to connections
     found = False
     for i, conn in enumerate(connections):
@@ -132,6 +138,19 @@ def main():
     while True:
         client, client_address = s.accept()
         print(f'Client {client_address} has connected to the server')
+
+        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        """
+        context.options |= ssl.OP_NO_SSLv2
+        context.options |= ssl.OP_NO_SSLv3
+        context.options |= ssl.OP_NO_TLSv1
+        context.options |= ssl.OP_NO_TLSv1_1
+        """
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.load_cert_chain(certfile=SERVER_CERT, keyfile=SERVER_KEY)
+        context.load_verify_locations(cafile=CLIENT_CERTS)
+        client = context.wrap_socket(client, server_side=True)
+        print(f'TLS established with client {client_address}')
 
         # Start client handling thread
         client_thread = threading.Thread(target=client_gateway, args=(client, client_address))
