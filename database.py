@@ -19,4 +19,3 @@ class Client:
     def __init__(self, UID, IK):
         self.UID = UID
         self.IK = IK
-

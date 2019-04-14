@@ -1,5 +1,6 @@
 import socket
 import json
+import sys
 
 HEADER_BUFF_SIZE = 32
 

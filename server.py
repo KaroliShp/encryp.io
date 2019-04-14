@@ -1,5 +1,6 @@
 from database import Client, db_find, db_update, db_print
 from helper import receive_json_message, send_json_message
+from security import load_key, key_to_bytes
 
 import socket
 import threading
@@ -15,7 +16,7 @@ BUFF_SIZE = 1024
 connections = []
 
 # Fake database
-database = [Client("Klevas", "0000"), Client("Berzas", "0001")]
+database = [Client("Klevas", key_to_bytes(load_key('klevas_key.pem').public_key())), Client("Berzas", key_to_bytes(load_key('berzas_key.pem').public_key()))]
 
 def print_connections():
     """
@@ -31,7 +32,7 @@ def verify_user(data):
     Check if user exists in the database and if the provided public key is correct according to the database
     """
     res = db_find(database, data['UID'])
-    return (not res is None) and (res.IK == data['IK'])
+    return (not res is None) and (res.IK == bytes.fromhex(data['IK']))
 
 def establish_p2p(c1, ca1, uid1, uid2):
     """
@@ -56,8 +57,8 @@ def establish_p2p(c1, ca1, uid1, uid2):
         if c[2] == uid2:
             print(f'Establising P2P between {uid1}:{ca1} and {uid2}:{c[1]}')
             
-            send_json_message(c1, { 'Response' : 'P2P', 'PeerUID' : uid2, 'PeerIP' : c[1], 'PeerIK' : res.IK, 'Server' : True, 'ServerPort' : 5002})
-            send_json_message(c[0], { 'Response' : 'P2P', 'PeerUID' : uid1, 'PeerIP' : ca1, 'PeerPort' : 5002, 'PeerIK' : db_find(database, uid1).IK, 'Server' : False })
+            send_json_message(c1, { 'Response' : 'P2P', 'PeerUID' : uid2, 'PeerIP' : c[1], 'PeerIK' : res.IK.hex(), 'Server' : True, 'ServerPort' : 5002})
+            send_json_message(c[0], { 'Response' : 'P2P', 'PeerUID' : uid1, 'PeerIP' : ca1, 'PeerPort' : 5002, 'PeerIK' : (db_find(database, uid1).IK).hex(), 'Server' : False })
 
             return True
     
