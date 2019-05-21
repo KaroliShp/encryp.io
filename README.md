@@ -1,5 +1,6 @@
+# encryp.io
+
 <p align="center"><img src="design/logo.png"></p>
-<h2 align="center"><strong>encryp.io</strong></h2>
 
 Prototype of a *secure* real-time peer-to-peer encrypted communication network. 
 
