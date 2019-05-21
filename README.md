@@ -1,10 +1,11 @@
-<h1 align="center"><img src="design/logo.png"></h1>
+<h2 align="center"><strong>encryp.io</strong></h2>
+<p align="center"><img src="design/logo.png"></p>
 
 Prototype of a real-time peer-to-peer encrypted communication network. Developed in a 36-hour period at a local hackathon by three very c00l h4x0rz.
 
 ## Architecture
 
-<h1 align="center"><img src="design/architecture.png"></h1>
+<p align="center"><img src="design/architecture.png"></p>
 
 Each user has its own *public and private key pair*. Public key and UID are stored in the database of the server.
 
@@ -31,4 +32,4 @@ P2P is secured using *ECDH key exchange* (with key size of 384 bits, possible ex
 
 Some neat design solutions from one of the h4x0rz (in gif format)
 
-<h1 align="center"><img src="design/animation.gif"></h1>
+<p align="center"><img src="design/animation.gif"></p>
