@@ -2,9 +2,9 @@
 
 <p align="center"><img src="design/logo.png"></p>
 
-Prototype of a *secure* real-time peer-to-peer encrypted communication network. 
+Prototype of a *secure* real-time peer-to-peer encrypted communication network. Developed in a 36-hour period at a local hackathon by three very c00l h4x0rz.
 
-Developed in a 36-hour period at a local hackathon by three very c00l h4x0rz.
+Disclaimer: as in any respectable hackathon project, the code is a bit messy and unfinished at places
 
 ## Architecture
 
