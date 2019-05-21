@@ -1,6 +1,6 @@
 # encryp.io
 
-![](https://raw.githubusercontent.com/karolishp/encryp.io/tree/master/design/logo.png "logo")
+![](https://github.com/KaroliShp/encryp.io/tree/master/design/logo.png "logo")
 
 Secure communications channel prototype developed in a hackathon (36 hours).
 
