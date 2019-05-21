@@ -1,145 +1,34 @@
-# encryp.io
-
 <h1 align="center"><img src="design/logo.png"></h1>
 
-Secure communications channel prototype developed in a hackathon (36 hours).
+Prototype of a real-time peer-to-peer encrypted communication network. Developed in a 36-hour period at a local hackathon by three very c00l h4x0rz.
 
-## Planas
+## Architecture
 
+<h1 align="center"><img src="design/architecture.png"></h1>
 
-- [x] Milestone 1: Paprastas CL python client ir server app. Client ir server komunikuoja per sockets. No encryption.
-- [x] Milestone 2: X3DH key publishing prototype
-- [ ] Milestone 3: Sending initial message
+Each user has its own *public and private key pair*. Public key and UID are stored in the database of the server.
 
+End users (Alice and Bob) connects to the server and authenticates with it. Security is achieved by establishing a *TLS* connection (both server and client verification).
 
-## Signal protocol (end to end encryption)
+One of the end users (the initiator) then asks to establish a connection with the other user(s). After the user(s) has accepted the incomming connection request, the server shares relevant public keys and UIDs with relevant parties. *P2P connection* is then established between the parties with the initiator acting as a server and the other users acting as clients. 
 
-### The X3DH (extended triple Diffie-Hellman) Key Agreement Protocol
+P2P is secured using *ECDH key exchange* (with key size of 384 bits, possible extension to 521 bits). *AES* keys of 256 bits size are used thereafter. *Forward secrecy* is achieved by using unique symmetric key for each message that gets sent - this gives assurances your session keys will not be compromised even if one of the private keys is compromised
 
-https://signal.org/docs/specifications/x3dh/
+## Tech stack/protocols/ideas etc.
 
----
+* Python (sockets, SSL, cryptography libraries)
+* Public key infrastucre (kind of)
+* Cryptography (symmetric ciphers, key-agreement protocols)
+* Network (communication via TCP-based sockets)
 
-**Alice**: wants to send Bob some data safely and establish a shared symmetric key
+## Features (not bugs)
 
-**Bob**: wants to allow parties like Alice to establish a shared symmetric key with him to do that, even if Bob is offline.
+* Online-only messaging (clients can locally hold a limited number of messages for the other party until the other party becomes available)
 
-**Server**: store encrypted messages from Alice and Bob and store public keys
+* No chat history, thus messages are *NEVER* stored on any server (timer for messages to be deleted by the clients)
 
----
+## Design
 
-5 public keys (and corresponding private keys) are involved:
+Some neat design solutions from one of the h4x0rz (in gif format)
 
-IKA - Alice's identity key (long term)
-EKA - Alice's ephemeral key (short term)
-IKB - Bob's identity key (long term)
-SPKB - Bob's signed prekey (short term)
-OPKB - Bob's one-time prekey (short term)
-
-Keys: Curve25519 (https://en.wikipedia.org/wiki/Curve25519)
-
-Prekeys: Bob publishes them to the server prior to Alice beginning the protocol run
-
-During each protocol run, Alice generates a new ephemeral key pair with public key EKA.
-
-After a successful protocol run Alice and Bob will share a 32-byte secret key SK (idea - 256-bits symmetric AES key)
-
----
-
-Flow:
-
-**1. Bob publishes his identity key and prekeys to a server**
-
-Publish to the server:
-
-• IKB (only once)
-
-• SPKB 
-
-• Signature(IKB, Encode(SPKB))
-
-• A set of prekeys (OPKB1, OPKB2, ...) (Upload whenever server thinks it's necessary)
-
-Every time a connection is established with the server, user sends the following message to the server:
-
-```json
-{
-    "UID" : "User ID",
-    "IKB" : "Identity key",
-    "SPKB" : "Signed prekey",
-    "Signature" : "Signature(IKB, Encode(SPKB))",
-    "Prekeys" : [
-    	{ "OPKB1" : "One-time prekey" },
-        { "OPKB2" : "One-time prekey" },
-        { "..." : "..." },
-        { "OPKB5" : "One-time prekey" }
-    ]
-}
-```
-
-Server database fields:
-
-```
-Person (string)
-IK (string)
-SPK (string)
-SIG (string)
-OPK1 (string)
-OPK2 (string)
-OPK3 (string)
-OPK4 (string)
-OPK5 (string)
-````
-
-Server checks if the identity key for this person is the same as the one provided in JSON message. Afterwards it determines if it needs to update the other values and correspondingly parses them from the message.
-
-Server then gives user confirmation that everything went fine and gives following options by sending the following message to Bob:
-
-```json
-{
-	"Response" : "Success"
-	"Message" : "Send user's name with whom you'd like to communicate"
-}
-```
-
-Bob then has to send a JSON message to the server
-
-```json
-{
-	"UID" : "Alice"
-}
-```
-
-In case of an error, server sends the following response:
-
-```json
-{
-	"Response" : "Error"
-	"Message" : "Bad message"
-}
-```
-
-If error occurs in user verification part, close the connection. If error occcurs when trying to find the user, just ask for a user name again
-
-**2. Alice fetches a prekey bundle from the server and uses it to send an initial message to Bob**
-
-Alice has to perform X3DH key agreement with Bob.
-
-After Alice requests the server to communicate with Bob, Server sends Alice prekey bundle:
-
-```json
-{
-	"Response" : "Success"
-	"Message" : ""
-}
-````
-
-Todo
-
-**3. Bob receives and processes Alice's initial message**
-
-Todo
-
-## Sockets and JSON
-
-Message: fixed length header ()
+<h1 align="center"><img src="design/animation.gif"></h1>
