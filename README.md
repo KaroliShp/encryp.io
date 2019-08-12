@@ -14,7 +14,7 @@ Prototype of a *secure* real-time peer-to-peer encrypted communication network. 
 
 ## Example
 
-Clone repo and get the requirements to your local virtual environment:
+Clone repo, get the requirements to your local virtual environment:
 
 ```
 $ git clone https://github.com/KaroliShp/encryp.io.git
@@ -22,13 +22,13 @@ $ cd encryp.io
 $ pip install -r requirements.txt
 ```
 
-Start the server:
+Start the server at localhost:5000:
 
 ```
 $ python encrypio/server.py
 ```
 
-In separate terminals start two clients:
+In separate terminals start two clients which will connec:
 
 ```
 $ python encrypio/client.py klevas

@@ -3,23 +3,25 @@ import threading
 import json
 import ssl
 
-from database import Client, db_find
+from database.client_model import ClientModel
+from database.database import Database
 from messages import receive_json_message, send_json_message
 from security import load_key, key_to_bytes
 
 
-# TLS client/server certificates and keys
+# Dummy TLS client/server certificates and keys
 SERVER_CERT = 'ssl/server.crt'
 SERVER_KEY = 'ssl/server.key'
 CLIENT_CERTS = 'ssl/client.crt'
 
-# Fake database
-database = [Client("klevas", key_to_bytes(load_key('keys/klevas_key.pem').public_key())), Client("berzas", key_to_bytes(load_key('keys/berzas_key.pem').public_key()))]
+# Dummy client keys
+KLEVAS_KEY_PATH = 'keys/klevas_key.pem'
+BERZAS_KEY_PATH = 'keys/berzas_key.pem'
 
 
 class Server:
 
-    def __init__(self, address, port):
+    def __init__(self, address, port, database):
         """
         Server for clients to connect
         :param address: IP address of the server
@@ -31,6 +33,9 @@ class Server:
 
         # Server connections
         self._connections = []
+
+        # Server database
+        self._database = database
 
         # Server socket
         self._server_socket = None
@@ -52,8 +57,8 @@ class Server:
         :param data: verification message returned by the client
         :return: True if user is verified, false otherwise
         """
-        res = db_find(database, data['UID'])
-        return (not res is None) and (res.IK == bytes.fromhex(data['IK']))
+        res = self._database.find_client_by_uid(data['UID'])
+        return (res is not None) and (res.get_ik() == bytes.fromhex(data['IK']))
 
 
     def _establish_p2p(self, c1, ca1, uid1, uid2):
@@ -72,8 +77,8 @@ class Server:
             return False
 
         # Check if UID exists
-        res = db_find(database, uid2)
-        if not res:
+        res = self._database.find_client_by_uid(uid2)
+        if res is None:
             print(f'User with UID {uid2} doesnt exist')
             send_json_message(c1, { 'Response' : 'P2P', 'Message' : f'User {uid2} does not exist'})
             return False
@@ -84,8 +89,8 @@ class Server:
             if c[2] == uid2:
                 print(f'Establising P2P between {uid1}:{ca1} and {uid2}:{c[1]}')
                 
-                send_json_message(c1, { 'Response' : 'P2P', 'PeerUID' : uid2, 'PeerIP' : c[1], 'PeerIK' : res.IK.hex(), 'Server' : True, 'ServerPort' : 5002})
-                send_json_message(c[0], { 'Response' : 'P2P', 'PeerUID' : uid1, 'PeerIP' : ca1, 'PeerPort' : 5002, 'PeerIK' : (db_find(database, uid1).IK).hex(), 'Server' : False })
+                send_json_message(c1, { 'Response' : 'P2P', 'PeerUID' : uid2, 'PeerIP' : c[1], 'PeerIK' : res.get_ik().hex(), 'Server' : True, 'ServerPort' : 5002})
+                send_json_message(c[0], { 'Response' : 'P2P', 'PeerUID' : uid1, 'PeerIP' : ca1, 'PeerPort' : 5002, 'PeerIK' : self._database.find_client_by_uid(uid1).get_ik().hex(), 'Server' : False })
                 return True
         
         print(f'User {uid2} is not online at the moment, please try later')
@@ -210,5 +215,10 @@ class Server:
 
 
 if __name__ == '__main__':
-    server = Server('0.0.0.0', 5000)
+    # Fake database
+    clients_list = [ ClientModel("klevas", key_to_bytes(load_key(KLEVAS_KEY_PATH).public_key())), ClientModel("berzas", key_to_bytes(load_key(BERZAS_KEY_PATH).public_key()))]
+    database = Database(clients_list)
+
+    # Start the server
+    server = Server('0.0.0.0', 5000, database)
     server.start()

@@ -3,7 +3,7 @@ import json
 import sys
 
 
-# Default header buffer size
+# Default header message buffer size
 HEADER_BUFF_SIZE = 32  # bytes
 
 
@@ -36,7 +36,7 @@ def receive_json_message(socket):
 def check_connection_client(msg):
     """
     Check connection to the server from the client
-    :param msg: message from the server 
+    :param msg: message from the server
     """
     if msg is None:
         print(f'Server has disconnected. Quitting...')

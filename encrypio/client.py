@@ -12,7 +12,7 @@ from p2p.p2p_server import P2P_Server
 from security import load_key, key_to_bytes, bytes_to_key
 
 
-# TLS client/server certificates and keys
+# Dummy TLS client/server certificates and keys
 SERVER_SNI_HOSTNAME = 'example.com'
 SERVER_CERT = 'ssl/server.crt'
 CLIENT_CERT = 'ssl/client.crt'
@@ -195,22 +195,19 @@ class Client:
 
 
 if __name__ == '__main__':
-    UID = ''
-    IK = None
-    PK = None
-
     # Provide UID from command line
     if len(sys.argv) != 2:
         print('Correct usage: python3 client.py --uid')
         sys.exit(0)
-    UID = sys.argv[1]
+    uid = sys.argv[1]
 
     # Load corresponding keys
-    key_file = f'keys/{UID}_key.pem'
+    key_file = f'keys/{uid}_key.pem'
     if os.path.isfile(key_file):
-        PK = load_key(key_file)
-        IK = PK.public_key()
-        print(f'Public key loaded for {UID}: {key_to_bytes(IK).hex()}')
+        pk = load_key(key_file)
+        ik = pk.public_key()
+        print(f'Public key loaded for {uid}: {key_to_bytes(ik).hex()}')
 
-    client = Client(UID, IK, PK, '100.67.220.2', 5000)
+    # Start the client
+    client = Client(uid, ik, pk, '0.0.0.0', 5000)
     client.start()
