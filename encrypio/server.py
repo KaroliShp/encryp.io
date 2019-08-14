@@ -3,10 +3,10 @@ import threading
 import json
 import ssl
 
-from database.client_model import ClientModel
-from database.database import Database
-from messages import receive_json_message, send_json_message
-from security import load_key, key_to_bytes
+from encrypio.database.client_model import ClientModel
+from encrypio.database.database import Database
+from encrypio.messages import receive_json_message, send_json_message
+from encrypio.security import load_key, key_to_bytes
 
 
 # Dummy TLS client/server certificates and keys

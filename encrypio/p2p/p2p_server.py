@@ -2,8 +2,8 @@ import socket
 import threading
 import os
 
-from messages import send_json_message, receive_json_message
-from security import generate_symmetric_key, encrypt_message, decrypt_message
+from encrypio.messages import send_json_message, receive_json_message
+from encrypio.security import generate_symmetric_key, encrypt_message, decrypt_message
 
 
 class P2P_Server:

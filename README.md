@@ -1,5 +1,7 @@
 # encryp.io
 
+[![Build Status](https://travis-ci.com/KaroliShp/encryp.io.svg?branch=master)](https://travis-ci.com/KaroliShp/encryp.io)
+
 <p align="center"><img src="design/logo.png"></p>
 
 Prototype of a *secure* real-time peer-to-peer encrypted communication network. Developed in a 36-hour period at a security hackathon.
@@ -14,12 +16,20 @@ Prototype of a *secure* real-time peer-to-peer encrypted communication network. 
 
 ## Example
 
-Clone repo, get the requirements to your local virtual environment:
+Clone repo, get the requirements to your local virtual environment (Python 3.6):
 
 ```
 $ git clone https://github.com/KaroliShp/encryp.io.git
 $ cd encryp.io
 $ pip install -r requirements.txt
+```
+
+Make sure your `PYTHONPATH` is pointing to encryp.io directory (you can do that in bash as follows):
+
+```
+$ export PYTHONPATH="$PWD"
+$ echo $PYTHONPATH
+/path/to/encryp.io
 ```
 
 Start the server at localhost:5000:
@@ -28,7 +38,7 @@ Start the server at localhost:5000:
 $ python encrypio/server.py
 ```
 
-In separate terminals start two clients which will connec:
+In two separate terminals start two separate clients:
 
 ```
 $ python encrypio/client.py klevas

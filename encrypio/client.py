@@ -6,10 +6,10 @@ from threading import Thread
 import os
 import ssl
 
-from messages import receive_json_message, send_json_message, check_connection_client
-from p2p.p2p_client import P2P_Client
-from p2p.p2p_server import P2P_Server
-from security import load_key, key_to_bytes, bytes_to_key
+from encrypio.messages import receive_json_message, send_json_message, check_connection_client
+from encrypio.p2p.p2p_client import P2P_Client
+from encrypio.p2p.p2p_server import P2P_Server
+from encrypio.security import load_key, key_to_bytes, bytes_to_key
 
 
 # Dummy TLS client/server certificates and keys
