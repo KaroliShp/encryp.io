@@ -1,9 +1,9 @@
 # encryp.io
 
+<p align="center"><img src="design/logo.png"></p>
+
 [![Build Status](https://travis-ci.com/KaroliShp/encryp.io.svg?branch=master)](https://travis-ci.com/KaroliShp/encryp.io)
 [![codecov](https://codecov.io/gh/KaroliShp/encryp.io/branch/master/graph/badge.svg)](https://codecov.io/gh/KaroliShp/encryp.io)
-
-<p align="center"><img src="design/logo.png"></p>
 
 Prototype of a *secure* real-time peer-to-peer encrypted communication network. Developed in a 36-hour period at a security hackathon.
 

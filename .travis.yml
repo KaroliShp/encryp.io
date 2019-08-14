@@ -12,7 +12,7 @@ before_script:
 
 # Run tests
 script:
-  - pytest --cov=encrypio
+  - pytest --cov=encrypio{/,/p2p,/database}
 
 # Update code coverage
 after_success:
